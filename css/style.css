@@ -74,3 +74,11 @@ h3 {
     color: #555;
     line-height: 30px;
 }
+
+.small {
+	font-size:.7rem;
+}
+
+.dropdown .selected-tag {
+	display:none;
+}

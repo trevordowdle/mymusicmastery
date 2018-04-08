@@ -4,14 +4,32 @@ var strategy_app = new Vue({
     el: '#strategy-app',
     beforeMount(){
         let vueThis = this;
+        let pieces, sources;
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 data = JSON.parse(xhttp.responseText);
-                data.values.shift();
-                vueThis.pieces = data.values.sort().reduce((prev,row)=>{
-                    prev.map[row[0]] = row[1];
-                    prev.rows.push(row[0]);
+
+                sources = data.valueRanges[1].values;
+                sources.shift();
+                vueThis.sourceMap = sources.reduce((prev,row)=>{
+                    prev[row[1].toString()] = row[0];
+                    return prev;
+                },vueThis.sourceMap);
+
+                pieces = data.valueRanges[0].values;
+                pieces.shift();
+                vueThis.pieces = pieces.sort(function (x, y) {
+                    if(x[0] < y[0]) return -1;
+                    if(x[0] > y[0]) return 1;
+                
+                    return x[2] - y[2];
+                }).reduce((prev,row)=>{
+                    prev.map[row[0]] = {
+                                            pieceID:row[1],
+                                            sourceID:row[2]
+                                       };
+                    prev.rows.push({name:row[0],label:row[1],source:vueThis.sourceMap[row[2]]});
                     return prev;
                 },vueThis.pieces);
 
@@ -43,7 +61,9 @@ var strategy_app = new Vue({
                 doneGo = true; */
             }
         };
-        xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values/Piece!A:B?&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
+        xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A:C&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
+        //values:batchGet?ranges=Source!A:B&ranges=Source!A:B
+        ///values/Piece!A:B,Source!A:B?key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA
         xhttp.send();
     
     },
@@ -52,11 +72,15 @@ var strategy_app = new Vue({
             map:{},
             rows:[]
         },
-        selectedPiece:'',
+        sourceMap:{
+
+        },
+        selectedPieces:[],
         step1:true,
         step2:false,
         step:1,
         go: function(goTo){
+            console.log(this.selectedPiece);
             this['step'+this.step] = false;
             setTimeout(()=>{
                 this.step = goTo;

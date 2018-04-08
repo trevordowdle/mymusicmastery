@@ -27,7 +27,19 @@
                             </div>
                         </div>
                         <div class="form-bottom">
-                            <v-select v-model="selectedPiece" :options="pieces.rows"></v-select>
+                            <v-select multiple v-model="selectedPieces" :options="pieces.rows">
+                                <template slot="option" slot-scope="option">
+                                    {{ option.name }} <span class="text-muted small"> - {{ option.source }}</span>
+                                </template>
+                            </v-select>
+                            <br />
+                            <p v-if="selectedPieces.length">Selected Pieces</p>
+                            <ol>
+                                <li v-for="piece in selectedPieces">
+                                    {{ piece.name }} <span class="text-muted small"> - {{ piece.source }}</span>
+                                </li>
+                            </ol>
+
 <!--                             <div class="form-group">
                                 <input type="text" name="form-first-name" placeholder="First name..." class="form-first-name form-control" id="form-first-name">
                             </div>
