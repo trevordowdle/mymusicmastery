@@ -1,4 +1,4 @@
-button.btn {
+button.go {
 	height: 50px;
     margin: 0;
     padding: 0 20px;
@@ -16,7 +16,7 @@ button.btn {
     -o-transition: all .3s; -moz-transition: all .3s; -webkit-transition: all .3s; -ms-transition: all .3s; transition: all .3s;
 }
 
-input[type="text"], 
+/* input[type="text"], 
 input[type="password"], 
 textarea, 
 textarea.form-control {
@@ -53,4 +53,4 @@ input[type="text"]:-ms-input-placeholder, input[type="password"]:-ms-input-place
 textarea:-ms-input-placeholder, textarea.form-control:-ms-input-placeholder { color: #888; }
 
 input[type="text"]::-webkit-input-placeholder, input[type="password"]::-webkit-input-placeholder, 
-textarea::-webkit-input-placeholder, textarea.form-control::-webkit-input-placeholder { color: #888; }
+textarea::-webkit-input-placeholder, textarea.form-control::-webkit-input-placeholder { color: #888; } */

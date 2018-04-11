@@ -29,36 +29,9 @@ var strategy_app = new Vue({
                                             pieceID:row[1],
                                             sourceID:row[2]
                                        };
-                    prev.rows.push({name:row[0],label:row[1],source:vueThis.sourceMap[row[2]]});
+                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[]});
                     return prev;
                 },vueThis.pieces);
-
-
-/*                 data = data.sheets.reduce((mstr,row)=>{
-                    mstr.titles.push(row.properties.title);
-                    mstr[row.properties.title] = row.data[0].rowData.map((info)=>{
-                        return {
-                            Song:info.values[0].formattedValue,
-                            Value:info.values[1].formattedValue
-                        }
-                    });
-                    return mstr;
-                },{titles:[]});
-                data.titles.map((title)=>{
-                    var select = "<div class='col'>" +
-                                    "<div class='input-group'>"+
-                                        "<div class='input-group-prepend'>" +
-                                            "<label class='input-group-text' for='"+title.toLowerCase().replace(/ /g, "-")+"'>"+title+"</label>" +
-                                        "</div>" +
-                                        "<select class='custom-select' onChange='test()' id="+title.toLowerCase().replace(/ /g, "-")+">" +
-                                            "<option></option>" +
-                                            buildOptions(title) +
-                                        "</select>" +
-                                    "</div>" +
-                                "</div>";
-                    document.getElementById('selects').insertAdjacentHTML('beforeend', select);
-                });
-                doneGo = true; */
             }
         };
         xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A:C&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
@@ -77,10 +50,41 @@ var strategy_app = new Vue({
         },
         selectedPieces:[],
         step1:true,
+        step1_b:false,
         step2:false,
         step:1,
+        handleNewEntry: function(option){
+            return Object.keys(option).reduce((name,key)=>{
+                name += option[key];
+                return name;
+            },"");
+        },
+        checkInput: function(val){
+            if(val.length && !val[val.length-1].name){
+                Vue.set(val, val.length-1, {
+                    label:val[val.length-1].label,
+                    name:val[val.length-1].label,
+                    source:'User Entry',
+                    tempo:'',
+                    measures:[]
+                });
+            }
+        },
+        addMeasure: function(measures,ev){
+            var tempoInput = ev.target.parentElement.previousElementSibling,
+                measureInput = tempoInput.previousElementSibling;
+
+            if(measureInput.value.trim() && tempoInput.value.trim()){
+                measures.push({measure:measureInput.value,tempo:tempoInput.value});
+                measureInput.value = "";
+                tempoInput.value = "";
+            }
+
+        },
         go: function(goTo){
-            console.log(this.selectedPiece);
+            //debugger;
+            //console.log(this.sourceMap);
+            //console.log(this.selectedPieces);
             this['step'+this.step] = false;
             setTimeout(()=>{
                 this.step = goTo;

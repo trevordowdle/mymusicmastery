@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>My Music Mastery</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/form-elements.css">
@@ -13,23 +13,25 @@
 </head>
 <body>
     <div class="container" id="strategy-app">
+        <h1>My Music Mastery</h1>
+
         <div class="row">
             <div class="col-md-8 offset-md-2 col-sm-6 offset-sm-3 form-box">
                 <transition name="fade">
                     <fieldset v-if="step1">
                         <div class="form-top">
                             <div class="form-top-left">
-                                <h3>Step 1 / 3</h3>
+<!--                                 <h3>Step 1 / 3</h3> -->
                                 <p>Select Piece(s):</p>
                             </div>
                             <div class="form-top-right">
-                                #1
+<!--                                 #1 -->
                             </div>
                         </div>
                         <div class="form-bottom">
-                            <v-select multiple v-model="selectedPieces" :options="pieces.rows">
+                            <v-select multiple taggable push-tags v-model="selectedPieces" :options="pieces.rows" @input="checkInput" >
                                 <template slot="option" slot-scope="option">
-                                    {{ option.name }} <span class="text-muted small"> - {{ option.source }}</span>
+                                    {{ option.name || handleNewEntry(option)}} <span class="text-muted small"> - {{ option.source || 'User Entry' }}</span>
                                 </template>
                             </v-select>
                             <br />
@@ -39,21 +41,40 @@
                                     {{ piece.name }} <span class="text-muted small"> - {{ piece.source }}</span>
                                 </li>
                             </ol>
-
-<!--                             <div class="form-group">
-                                <input type="text" name="form-first-name" placeholder="First name..." class="form-first-name form-control" id="form-first-name">
+                            <br />
+                            <br />
+                            <br />
+                            <button type="button" v-bind:class="{disabled:!selectedPieces.length}" :disabled="!selectedPieces.length" class="go btn btn-next" v-on:click="go('1_b')">Next</button>
+                        </div>
+                    </fieldset>
+                </transition>
+                <transition name="fade">
+                    <fieldset v-if="step1_b">
+                        <div class="form-top">
+                            <div class="form-top-left">
+<!--                                 <h3>Step 1 / 3</h3> -->
+                                <p>Set Tempo(s):</p>
                             </div>
-                            <div class="form-group">
-                                <input type="text" name="form-last-name" placeholder="Last name..." class="form-last-name form-control" id="form-last-name">
+                            <div class="form-top-right">
+<!--                                 #1 -->
                             </div>
-                            <div class="form-group">
-                                <textarea name="form-about-yourself" placeholder="About yourself..." 
-                                            class="form-about-yourself form-control" id="form-about-yourself"></textarea>
-                            </div> -->
+                        </div>
+                        <div class="form-bottom">
+                            <div v-for="piece in selectedPieces" class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">
+                                            {{ piece.name+' ' }} <span class="text-muted small"> - {{ piece.source }}</span>
+                                        </span>
+                                    </div>
+                                    <input type="text" v-model="piece.tempo" class="form-control" placeholder="Enter Tempo">
+                                </div>
+                                <span>{{piece.temp}}</span>
+                            </div>
                             <br />
                             <br />
-                            <br />
-                            <button type="button" class="btn btn-next" v-on:click="go(2)">Next</button>
+                            <button type="button" class="btn go btn-previous" v-on:click="go(1)">Previous</button>
+                            <button type="button" class="btn go btn-next" v-on:click="go(2)">Next</button>
                         </div>
                     </fieldset>
                 </transition>
@@ -61,30 +82,36 @@
                     <fieldset  v-if="step2">
                         <div class="form-top">
                             <div class="form-top-left">
-                                <h3>Step 2 / 3</h3>
+<!--                                 <h3>Step 2 / 3</h3> -->
                                 <p>Assign Measures:</p>
                             </div>
                             <div class="form-top-right">
-                                #2
+<!--                                 #2 -->
                             </div>
                         </div>
                         <div class="form-bottom">
-                            <p>Placeholder</p>
-<!--                             <div class="form-group">
-                                <label class="sr-only" for="form-email">Email</label>
-                                <input type="text" name="form-email" placeholder="Email..." class="form-email form-control" id="form-email">
+                            <div v-for="piece in selectedPieces" class="form-group">
+                                <div class="card">
+                                    <div class="card-header">
+                                        {{ piece.name + ' - ' + piece.source }}
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" placeholder="Enter Measure">
+                                            <input type="text" class="form-control" placeholder="Enter Tempo">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" v-on:click="addMeasure(piece.measures,$event)">Add Measure</button>
+                                            </div>
+                                        </div>
+                                        <h5 class="card-title">Measures</h5>
+                                        <p v-if="!piece.measures.length">No measures added</p>
+                                        <p v-for="measure in piece.measures" class="card-text">{{measure.measure}} - Tempo {{measure.tempo}}</p>
+                                    </div>
+                                </div>
+<!--                                 <button type="button" class="btn btn-small">Add Measure</button> -->
                             </div>
-                            <div class="form-group">
-                                <label class="sr-only" for="form-password">Password</label>
-                                <input type="password" name="form-password" placeholder="Password..." class="form-password form-control" id="form-password">
-                            </div>
-                            <div class="form-group">
-                                <label class="sr-only" for="form-repeat-password">Repeat password</label>
-                                <input type="password" name="form-repeat-password" placeholder="Repeat password..." 
-                                            class="form-repeat-password form-control" id="form-repeat-password">
-                            </div> -->
-                            <button type="button" class="btn btn-previous" v-on:click="go(1)">Previous</button>
-                            <button type="button" class="btn btn-next">Next</button>
+<!--                             <button type="button" class="btn go btn-previous" v-on:click="go('1_b')">Previous</button>
+                            <button type="button" class="btn go btn-next">Next</button> -->
                         </div>
                     </fieldset>
                 </transition>
