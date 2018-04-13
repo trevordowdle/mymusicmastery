@@ -52,6 +52,8 @@ var strategy_app = new Vue({
         step1:true,
         step1_b:false,
         step2:false,
+        step3:false,
+        step4:false,
         step:1,
         handleNewEntry: function(option){
             return Object.keys(option).reduce((name,key)=>{
