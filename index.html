@@ -27,7 +27,7 @@
                             </div>
                         </div>
                         <div class="form-bottom">
-                            <v-select multiple taggable push-tags v-model="selectedPieces" :options="pieces.rows" @input="checkInput" >
+                            <v-select class="pieces-select" multiple taggable push-tags v-model="selectedPieces" :options="pieces.rows" @input="checkInput" >
                                 <template slot="option" slot-scope="option">
                                     {{ option.name || handleNewEntry(option)}} <span class="text-muted small"> - {{ option.source || 'User Entry' }}</span>
                                 </template>
@@ -124,14 +124,49 @@
                                         {{ piece.name + ' - ' + piece.source }}
                                     </div>
                                     <div class="card-body">
+                                        <div v-if="!piece.measures.length">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <label>Select Strategy:</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <label class="input-group-text" :for="'inputGroupSelect'+piece.id">Strategy</label>
+                                                        </div>
+                                                        <v-select class="strategy-select" :id="'inputGroupSelect'+piece.id" v-model="piece.strategy" :options="strategies" >
+                                                        </v-select>
+                                                    </div>
+                                                    <br />
+                                                    {{piece.strategy}}                                                
+                                                    <br />
+                                                    <br />
+                                                </div>
+                                            </div>
+                                        </div>
                                         <h5 class="card-title">Measures</h5>
                                         <p v-if="!piece.measures.length">No measures added</p>
-                                        <p v-for="measure in piece.measures" class="card-text">{{measure.measure}} - Tempo {{measure.tempo}}</p>
+                                        <div v-for="measure in piece.measures">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <p class="card-text">{{measure.measure}} - Tempo {{measure.tempo}}</p>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <label class="input-group-text" :for="'inputGroupSelect'+measure.id">Strategy</label>
+                                                        </div>
+                                                        <v-select class="strategy-select" :id="'inputGroupSelect'+measure.id" v-model="measure.strategy" :options="strategies" >
+                                                        </v-select>
+                                                    </div>
+                                                    <br />
+                                                    {{measure.strategy}}
+                                                    <br />
+                                                    <br />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-<!--                             <button type="button" class="btn go btn-previous" v-on:click="go('1_b')">Previous</button>
-                            <button type="button" class="btn go btn-next" v-on:click="go(3)">Next</button> -->
+                            <button type="button" class="btn go btn-previous" v-on:click="go(2)">Previous</button>
+                            <!--<button type="button" class="btn go btn-next" v-on:click="go(3)">Next</button> -->
                         </div>
                     </fieldset>
                 </transition>

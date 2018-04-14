@@ -79,6 +79,19 @@ h3 {
 	font-size:.7rem;
 }
 
-.dropdown .selected-tag {
+.v-select.pieces-select .selected-tag {
 	display:none;
+}
+
+.v-select.strategy-select {
+	position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    margin-bottom: 0;
+}
+
+.v-select.strategy-select .dropdown-toggle {
+	height:calc(2.25rem + 2px);
+	border-top-left-radius:0;
+	border-bottom-left-radius:0;
 }

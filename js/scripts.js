@@ -25,15 +25,16 @@ var strategy_app = new Vue({
                 
                     return x[2] - y[2];
                 }).reduce((prev,row)=>{
-                    prev.map[row[0]] = {
-                                            pieceID:row[1],
+                    prev.map[row[1]] = {
                                             sourceID:row[2]
                                        };
-                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[]});
+                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[],strategy:null,id:row[1]});
                     return prev;
                 },vueThis.pieces);
             }
         };
+        //xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A1:C10&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
+        
         xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A:C&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
         //values:batchGet?ranges=Source!A:B&ranges=Source!A:B
         ///values/Piece!A:B,Source!A:B?key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA
@@ -45,6 +46,8 @@ var strategy_app = new Vue({
             map:{},
             rows:[]
         },
+        strategies:[],
+        selectedStrategy:null,
         sourceMap:{
 
         },
@@ -53,8 +56,10 @@ var strategy_app = new Vue({
         step1_b:false,
         step2:false,
         step3:false,
+        step3first:false,
         step4:false,
         step:1,
+        userEntries:0,
         handleNewEntry: function(option){
             return Object.keys(option).reduce((name,key)=>{
                 name += option[key];
@@ -63,12 +68,15 @@ var strategy_app = new Vue({
         },
         checkInput: function(val){
             if(val.length && !val[val.length-1].name){
+                this.userEntries += 1;
                 Vue.set(val, val.length-1, {
                     label:val[val.length-1].label,
                     name:val[val.length-1].label,
                     source:'User Entry',
                     tempo:'',
-                    measures:[]
+                    measures:[],
+                    strategy:null,
+                    id:this.userEntries
                 });
             }
         },
@@ -77,7 +85,7 @@ var strategy_app = new Vue({
                 measureInput = tempoInput.previousElementSibling;
 
             if(measureInput.value.trim() && tempoInput.value.trim()){
-                measures.push({measure:measureInput.value,tempo:tempoInput.value});
+                measures.push({measure:measureInput.value,tempo:tempoInput.value,strategy:null,id:measures.length});
                 measureInput.value = "";
                 tempoInput.value = "";
             }
@@ -87,11 +95,41 @@ var strategy_app = new Vue({
             //debugger;
             //console.log(this.sourceMap);
             //console.log(this.selectedPieces);
+            if(!this.step3first && goTo === 3){
+                this.step3First = true;
+                this.loadStrategies();
+            }
+
             this['step'+this.step] = false;
             setTimeout(()=>{
                 this.step = goTo;
                 this['step'+goTo] = true;   
             },500); 
+        },
+        loadStrategies: function(){
+            let vueThis = this,
+                strategies;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = JSON.parse(xhttp.responseText);
+                    strategies = data.valueRanges[0].values;
+                    strategies.shift();
+                    vueThis.strategies = strategies.sort(function (x, y) {
+                        if(x[0] < y[0]) return -1;
+                        if(x[0] > y[0]) return 1;
+                    
+                        return 0;
+                    }).reduce((prev,row)=>{
+                        prev.push({label:row[0],id:row[1],description:row[2] || ''});
+                        return prev;
+                    },vueThis.strategies);
+    
+                }
+            };            
+            xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1SOvyvvAGUuniEf2EXT0jSk4v0cDdq_mxIFRmH1Tvilk/values:batchGet?ranges=PS!A:C&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
+            xhttp.send();
         }
     }
 })
