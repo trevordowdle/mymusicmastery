@@ -3,6 +3,14 @@ Vue.component('v-select', VueSelect.VueSelect);
 var strategy_app = new Vue({
     el: '#strategy-app',
     beforeMount(){
+
+/*         var doc = new jsPDF();
+
+        generateHeader(doc);
+        generatePieceHeader(doc);
+        doc.save('a4.pdf'); */
+
+
         let vueThis = this;
         let pieces, sources;
         var xhttp = new XMLHttpRequest();
@@ -28,11 +36,17 @@ var strategy_app = new Vue({
                     prev.map[row[1]] = {
                                             sourceID:row[2]
                                        };
-                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[],strategy:null,id:row[1]});
+                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[],strategies:[],id:row[1]});
                     return prev;
                 },vueThis.pieces);
             }
+
+/*         vueThis.selectedPieces = [{"name":"Allegro","label":"Allegro 78","source":"Suzuki Book 7","tempo":"100","measures":[],"strategies":[],"id":"78"},{"name":"Caprice No. 10, Allegretto","label":"Caprice No. 10, Allegretto 3187","source":"Rode 24 Caprices for Violin","tempo":"200","measures":[{"measure":"40","tempo":"55","strategies":[],"id":0},{"measure":"60","tempo":"60","strategies":[],"id":1}],"strategies":[],"id":"3187"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"300","measures":[{"measure":"34","tempo":"80","strategies":[],"id":0},{"measure":"68","tempo":"90","strategies":[],"id":1},{"measure":"80","tempo":"65","strategies":[],"id":2}],"strategies":[],"id":"3216"}];
+            vueThis.step1 = false;
+            vueThis.step3 = true;
+            vueThis.step = 3; */
         };
+
         //xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A1:C10&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
         
         xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A:C&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
@@ -47,7 +61,8 @@ var strategy_app = new Vue({
             rows:[]
         },
         strategies:[],
-        selectedStrategy:null,
+        selectedStrategy:{},
+        selectedStrategyMethod:{},
         sourceMap:{
 
         },
@@ -75,7 +90,7 @@ var strategy_app = new Vue({
                     source:'User Entry',
                     tempo:'',
                     measures:[],
-                    strategy:null,
+                    strategies:[],
                     id:this.userEntries
                 });
             }
@@ -85,11 +100,20 @@ var strategy_app = new Vue({
                 measureInput = tempoInput.previousElementSibling;
 
             if(measureInput.value.trim() && tempoInput.value.trim()){
-                measures.push({measure:measureInput.value,tempo:tempoInput.value,strategy:null,id:measures.length});
+                measures.push({measure:measureInput.value,tempo:tempoInput.value,strategies:[],id:measures.length});
                 measureInput.value = "";
                 tempoInput.value = "";
             }
+        },
+        addStrategy: function(strategies,id){
 
+            console.log(this.selectedStrategy[id]);
+            //debugger;
+
+            if(this.selectedStrategy[id]){
+                strategies.push(this.selectedStrategy[id]);
+                delete this.selectedStrategy[id];
+            }
         },
         go: function(goTo){
             //debugger;
@@ -132,4 +156,38 @@ var strategy_app = new Vue({
             xhttp.send();
         }
     }
-})
+});
+
+
+function generateHeader(doc){
+    doc.setFontType('bold');
+    doc.setFontSize(10);
+    doc.text('FirstName LastName', 5, 10);
+    doc.text('Date', 5, 15);
+
+    doc.text('Date', 100, 15);
+
+    doc.setFontSize(22);
+    doc.text('Path to Mastery', 100, 10);
+
+}
+
+function generatePieceHeader(doc){
+
+/*     doc.line(20, 20, 60, 20)
+    doc.line(100, 20, 100, 60) // vertical line
+    doc.rect(20, 20, 10, 10) */
+
+    doc.rect(5, 20, 60, 10); //x,y,width,height
+    doc.setFontSize(10);
+    doc.setFontType('bold');
+    doc.text('Piece', 6, 26);
+    doc.rect(65, 20, 35, 10); //x,y,width,height
+    doc.text('Practice Passage', 66, 26);
+    doc.rect(100, 20, 40, 10); //x,y,width,height
+    doc.text('Practice Strategy', 101, 26);
+
+    doc.rect(140, 20, 60, 10); //x,y,width,height
+    doc.line(140, 25, 200, 25);
+
+}

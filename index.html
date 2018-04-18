@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/form-elements.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-select@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js" integrity="sha384-CchuzHs077vGtfhGYl9Qtc7Vx64rXBXdIAZIPbItbNyWIRTdG0oYAqki3Ry13Yzu" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container" id="strategy-app">
@@ -127,16 +128,23 @@
                                         <div v-if="!piece.measures.length">
                                             <div class="row">
                                                 <div class="col">
-                                                    <label>Select Strategy:</label>
                                                     <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <label class="input-group-text" :for="'inputGroupSelect'+piece.id">Strategy</label>
-                                                        </div>
-                                                        <v-select class="strategy-select" :id="'inputGroupSelect'+piece.id" v-model="piece.strategy" :options="strategies" >
+                                                        <v-select class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id]" :options="strategies" >
                                                         </v-select>
+                                                        <div class="input-group-append">
+                                                            <button v-bind:class="{ 'btn-outline-success': selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id] }" class="btn btn-outline-secondary" type="button" v-on:click="addStrategy(piece.strategies,(piece.source === 'User Entry' ? 'U':'') + piece.id)">Add Strategy</button>
+                                                        </div>
                                                     </div>
                                                     <br />
-                                                    {{piece.strategy}}                                                
+                                                    <p v-if="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id]">{{selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id].description}}</p>    
+                                                    <br />
+                                                    <p v-if="!piece.strategies.length">No strategies added</p>
+                                                    <p v-if="piece.strategies.length">Selected Strategies</p>
+                                                    <ol>
+                                                        <li v-for="strategy in piece.strategies">
+                                                            {{ strategy.label }}
+                                                        </li>
+                                                    </ol>                                             
                                                     <br />
                                                     <br />
                                                 </div>
@@ -149,14 +157,22 @@
                                                 <div class="col">
                                                     <p class="card-text">{{measure.measure}} - Tempo {{measure.tempo}}</p>
                                                     <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <label class="input-group-text" :for="'inputGroupSelect'+measure.id">Strategy</label>
-                                                        </div>
-                                                        <v-select class="strategy-select" :id="'inputGroupSelect'+measure.id" v-model="measure.strategy" :options="strategies" >
+                                                        <v-select class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id]" :options="strategies" >
                                                         </v-select>
+                                                        <div class="input-group-append">
+                                                            <button v-bind:class="{ 'btn-outline-success': selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id] }" class="btn btn-outline-secondary" type="button" v-on:click="addStrategy(measure.strategies,(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id)">Add Strategy</button>
+                                                        </div>
                                                     </div>
                                                     <br />
-                                                    {{measure.strategy}}
+                                                    <p v-if="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id]">{{selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id].description}}</p>    
+                                                    <br />
+                                                    <p v-if="!measure.strategies.length">No strategies added for measure</p>
+                                                    <p v-if="measure.strategies.length">Selected Strategies</p>
+                                                    <ol>
+                                                        <li v-for="strategy in measure.strategies">
+                                                            {{ strategy.label }}
+                                                        </li>
+                                                    </ol>  
                                                     <br />
                                                     <br />
                                                 </div>
