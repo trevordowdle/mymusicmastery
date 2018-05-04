@@ -11,11 +11,12 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-select@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js" integrity="sha384-CchuzHs077vGtfhGYl9Qtc7Vx64rXBXdIAZIPbItbNyWIRTdG0oYAqki3Ry13Yzu" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
 </head>
 <body>
     <div class="container" id="strategy-app">
         <h1>My Music Mastery</h1>
-        <h5 class="muted">version 0.5.1</h5>
+        <h5 class="muted">version 0.6.0</h5>
 
         <div class="row">
             <div class="col-md-8 offset-md-2 col-sm-6 offset-sm-3 form-box">
@@ -183,12 +184,36 @@
                                 </div>
                             </div>
                             <button type="button" class="btn go btn-previous" v-on:click="go(2)">Previous</button>
-                            <!--<button type="button" class="btn go btn-next" v-on:click="go(3)">Next</button> -->
+                            <button type="button" class="btn go btn-next" v-on:click="go(4)">Next</button>
                         </div>
                     </fieldset>
                 </transition>
+                <transition name="fade">
+                    <fieldset v-if="step4">
+                        <div class="form-top">
+                            <div class="form-top-left">
+                                <p>Add Notes:</p>
+                            </div>
+                            <div class="form-top-right">
+                            </div>
+                        </div>
+                        <div class="form-bottom">  
+                            <div v-for="piece in selectedPieces" class="form-group">
+                                <h5>{{ piece.name }} <span class="text-muted small"> - {{ piece.source }}</span></h5>
+                                <textarea class="form-control" v-model="piece.notes" placeholder="Notes">
+                                </textarea>
+                                <br />
+                                <input type="text" class="form-control" v-model="piece.link" placeholder="Video Link" /> 
+                                <br />
+                            </div>
+                            <button type="button" class="btn go btn-previous" v-on:click="go(3)">Previous</button>
+                            <button type="button" class="btn go btn-previous" v-on:click="pdf()">Generate CheckList</button>
+                        </div>  
+                </transition>
             </div>
         </div> 
+        <br />
+        <br />
     </div>
       <script src="js/scripts.js"></script> 
 </body>

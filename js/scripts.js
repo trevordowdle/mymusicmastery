@@ -1,15 +1,219 @@
+
+var examples = {};
+
+examples.spans = function (data) {
+
+    var doc = new jsPDF('p', 'pt');
+
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.setFontStyle('bold');
+    //doc.text('Timothy McMurray', 40, 50);
+
+    generatePieceHeader(doc);
+
+    doc.setTextColor(0);
+
+    var columns = [
+        {title: "Piece", dataKey: "name"},
+        {title: "Measure", dataKey: "measures"}
+    ];
+
+    //return doc;
+
+    
+    doc.autoTable(columns, data, {
+        theme: 'grid',
+        startY: 80,
+        tableWidth: 575,
+        margin: 10,
+        styles: {
+            lineColor: [0, 0, 0]
+        },
+        drawHeaderCell: function (cell, data) {
+             
+            return false;
+        },
+        drawHeaderRow: function (row, data) { 
+            return false;
+        },
+        drawRow: function (row, data) {
+            if(row.index > 0){
+                doc.addPage();
+                generatePieceHeader(doc);
+                data.cursor.y = 80;
+            }
+            //calculate row height based on data.row.raw.source
+            if(data.row.raw.measures.length){
+                row.height = 200;
+            }
+            else {
+                row.height = 20 * data.row.raw.strategies.length;
+            }
+
+            if(row.height < 80){
+                row.height = 80;
+            }
+
+            if(60+(data.row.raw.source.length/50)*20 > row.height){
+                row.height = 60 + Math.ceil(data.row.raw.source.length/50)*20;
+            }
+
+        },
+        drawCell: function (cell, data) {
+            if(data.column.index === 0){
+                cell.width -= 26.5;
+                if(data.row.raw.source){
+                    cell.text.push('');
+                    cell.text.push('Source:');
+                    let sourceCollect = '';
+
+                    cell.text = cell.text.concat(breakUptext(40,data.row.raw.source));
+
+                    cell.text.push('');
+                }
+                if(data.row.raw.tempo){
+                    cell.text.push('Assigned tempo: '+data.row.raw.tempo);
+                }
+            }
+            if(data.column.index === 1){
+                if(data.row.raw.measures.length){
+
+                    let trackHeight = 0,
+                        height;
+
+                    //doc.text(strategy.label, cell.x+87, cell.y+(20*(index))+14);
+
+                    data.row.raw.measures.map((measure,index)=>{
+                        height = measure.strategies.length*20;
+                        if(height < 40){
+                            height = 40;
+                        }
+                        doc.rect(cell.x, cell.y+trackHeight, 85, height); //x,y,width,height
+                        doc.text('m. '+measure.measure, cell.x+4, cell.y+trackHeight+14);
+                        doc.text('tempo '+measure.tempo, cell.x+4, cell.y+trackHeight+29);
+
+                        measure.strategies.map((strategy,index)=>{
+                            doc.rect(cell.x+85, cell.y+trackHeight+(20*(index)), cell.width-58.5, 20); //x,y,width,height
+                            doc.text(strategy.label, cell.x+87, cell.y+trackHeight+(20*(index))+14);
+
+                            doc.line(369,cell.y+trackHeight+(20*index),369,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*1,cell.y+trackHeight+(20*index),369+24*1,cell.y+trackHeight+(20*index)+20);  //x,y
+                            doc.line(369+24*2,cell.y+trackHeight+(20*index),369+24*2,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*3,cell.y+trackHeight+(20*index),369+24*3,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*4,cell.y+trackHeight+(20*index),369+24*4,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*5,cell.y+trackHeight+(20*index),369+24*5,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*6,cell.y+trackHeight+(20*index),369+24*6,cell.y+trackHeight+(20*index)+20);
+                            doc.line(369+24*7,cell.y+trackHeight+(20*index),369+24*7,cell.y+trackHeight+(20*index)+20);
+
+                        });
+
+                        if(data.row.raw.measures.length === index+1){
+                            if(data.row.raw.notes){
+
+                                let noteBlocks = breakUptext(80,data.row.raw.notes),
+                                    hasLink = 0;
+
+                                if(data.row.raw.link){
+                                    hasLink = 1;
+                                    doc.setTextColor(0,0,255);
+                                    doc.text(data.row.raw.link,cell.x+4,cell.y+(20*index)+20+((noteBlocks.length+1)*12)+trackHeight);
+                                    doc.setTextColor(0,0,0);
+                                }
+
+                                doc.rect(cell.x, cell.y+(20*(index))+20, cell.width+26.5, 5+((hasLink+noteBlocks.length)*20)+trackHeight);
+                                doc.text('Notes / Comments:',cell.x+2,cell.y+(20*index)+12+trackHeight);
+                                noteBlocks.map((block,indexBlock)=>{
+                                    doc.text(block,cell.x+4,cell.y+(20*index)+12+((indexBlock+1)*12)+trackHeight); 
+                                });  
+                            }
+                        }
+
+                        trackHeight += height;                        
+                        
+                    });
+                        
+                    
+                    //debugger;
+                }
+                else {
+                    data.row.raw.strategies.map((strategy,index)=>{
+                        doc.rect(cell.x+85, cell.y+(20*(index)), cell.width-58.5, 20); //x,y,width,height
+                        doc.text(strategy.label, cell.x+87, cell.y+(20*(index))+14);
+
+                        doc.line(369,cell.y+(20*index),369,cell.y+(20*index)+20);
+                        doc.line(369+24*1,cell.y+(20*index),369+24*1,cell.y+(20*index)+20);  //x,y
+                        doc.line(369+24*2,cell.y+(20*index),369+24*2,cell.y+(20*index)+20);
+                        doc.line(369+24*3,cell.y+(20*index),369+24*3,cell.y+(20*index)+20);
+                        doc.line(369+24*4,cell.y+(20*index),369+24*4,cell.y+(20*index)+20);
+                        doc.line(369+24*5,cell.y+(20*index),369+24*5,cell.y+(20*index)+20);
+                        doc.line(369+24*6,cell.y+(20*index),369+24*6,cell.y+(20*index)+20);
+                        doc.line(369+24*7,cell.y+(20*index),369+24*7,cell.y+(20*index)+20);
+                    
+                        //doc.rect(cell.x, cell.y, 100, cell.height * (index+1), 'S');
+                        if(data.row.raw.strategies.length === index+1){
+                            if(data.row.raw.notes){
+
+                                let noteBlocks = breakUptext(80,data.row.raw.notes),
+                                    hasLink = 0;
+
+                                if(data.row.raw.link){
+                                    hasLink = 1;
+                                    doc.setTextColor(0,0,255);
+                                    doc.text(data.row.raw.link,cell.x+4,cell.y+(20*index)+41+((noteBlocks.length+1)*12));
+                                    doc.setTextColor(0,0,0);
+                                }
+
+                                doc.rect(cell.x, cell.y+(20*(index))+20, cell.width+26.5, 20+((hasLink+noteBlocks.length)*20));
+                                doc.text('Notes / Comments:',cell.x+2,cell.y+(20*index)+33);
+                                noteBlocks.map((block,indexBlock)=>{
+                                    doc.text(block,cell.x+4,cell.y+(20*index)+33+((indexBlock+1)*12)); 
+                                });  
+                            }
+                        }
+                    });
+                }
+
+
+                return false;
+            }
+        }
+    });
+
+    // doc.addPage();
+
+    return doc;
+}
+
+var breakUptext = function (textLength,source) {
+    let sourceCollect = '',
+        textBlocks = [];
+
+        source.split(' ').map((word)=>{
+        while(word.length > textLength){
+            textBlocks.push(sourceCollect + word.substring(0,textLength-sourceCollect.length));
+            word = word.substring(textLength-sourceCollect.length);
+            sourceCollect = ' ';
+        }
+        if(sourceCollect.length + word.length <= textLength){
+            sourceCollect += word + ' ';
+        }
+        else {
+            textBlocks.push(sourceCollect);
+            sourceCollect = '';
+        }
+    });
+    if(sourceCollect){
+        textBlocks.push(sourceCollect);
+    }
+    return textBlocks;
+};
+
 Vue.component('v-select', VueSelect.VueSelect);
 
 var strategy_app = new Vue({
     el: '#strategy-app',
     beforeMount(){
-
-/*         var doc = new jsPDF();
-
-        generateHeader(doc);
-        generatePieceHeader(doc);
-        doc.save('a4.pdf'); */
-
 
         let vueThis = this;
         let pieces, sources;
@@ -36,23 +240,25 @@ var strategy_app = new Vue({
                     prev.map[row[1]] = {
                                             sourceID:row[2]
                                        };
-                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[],strategies:[],id:row[1]});
+                    prev.rows.push({name:row[0],label:row[0]+' '+row[1],source:vueThis.sourceMap[row[2]],tempo:'',measures:[],strategies:[],id:row[1],link:'',notes:''});
                     return prev;
                 },vueThis.pieces);
             }
 
-/*         vueThis.selectedPieces = [{"name":"Allegro","label":"Allegro 78","source":"Suzuki Book 7","tempo":"100","measures":[],"strategies":[],"id":"78"},{"name":"Caprice No. 10, Allegretto","label":"Caprice No. 10, Allegretto 3187","source":"Rode 24 Caprices for Violin","tempo":"200","measures":[{"measure":"40","tempo":"55","strategies":[],"id":0},{"measure":"60","tempo":"60","strategies":[],"id":1}],"strategies":[],"id":"3187"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"300","measures":[{"measure":"34","tempo":"80","strategies":[],"id":0},{"measure":"68","tempo":"90","strategies":[],"id":1},{"measure":"80","tempo":"65","strategies":[],"id":2}],"strategies":[],"id":"3216"}];
-            vueThis.step1 = false;
-            vueThis.step3 = true;
-            vueThis.step = 3; */
         };
 
         //xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A1:C10&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
         
         xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1uVMJcnjaxyz8_w6xrR5AFiQ8zMktKuOPEsLL3q7YofM/values:batchGet?ranges=Piece!A:C&ranges=Source!A:B&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
+        
         //values:batchGet?ranges=Source!A:B&ranges=Source!A:B
         ///values/Piece!A:B,Source!A:B?key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA
         xhttp.send();
+
+/*         vueThis.selectedPieces = [{"notes":"yo there","link":"https://www.youtube.com/watch?v=NUfvht7aJPQ","name":"Bourree 2","label":"Bourree 2 39","source":"Suzuki Book 3","tempo":"200","measures":[],"strategies":[{"label":"Clap","id":"19","description":""},{"label":"Record","id":"29","description":""},{"label":"Slow Practice","id":"24","description":""}],"id":"39"},{"name":"Caprice No. 12, Comodo","label":"Caprice No. 12, Comodo 3189","source":"Rode 24 Caprices for Violin","tempo":"120","measures":[{"measure":"Lookal","tempo":"200","strategies":[{"label":"Connected Notes","id":"9","description":"All note changes take place in the middle of each bow. A given note begins in the middle of the bow, and its duration continues through the bow change until the bow returns again to the middle of the bow. All notes are given an equal rhythm and bow-distribution (one half of the bow in each direction)."}],"id":0},{"measure":"Mishko","tempo":"235","strategies":[{"label":"Roasting","id":"999","description":"You should roast bro"},{"label":"Listen","id":"20","description":""},{"label":"Record","id":"29","description":""}],"id":1},{"measure":"Seemotam","tempo":"140","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."},{"label":"Stopped Bows","id":"8","description":"Practice bow distribution within one bow stroke by stopping after each note in a continuous bow. Each note should receive the appropriate bow division as assigned within the given bow direction."}],"id":2}],"strategies":[],"id":"3189"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"570","measures":[{"measure":"Ureikol","tempo":"120","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."}],"id":0},{"measure":"Smalshok","tempo":"220","strategies":[{"label":"Metronome Drilling","id":"28","description":""},{"label":"Listen","id":"20","description":""}],"id":1},{"measure":"Lugtungal","tempo":"330","strategies":[{"label":"Rapid Rhythms","id":"5","description":"Determine a group of notes in groups of either 3, 4, 6, or 8. To begin, the first note of each group receives its own beat. The remaining notes are played in rapid succession within their own beat, distributed equally across the beat. For variation, displace the long note by one position in the group until you have cycled through all possible combinations. Ex: L SSSSSSS becomes SL SSSSSS, etc."}],"id":2}],"strategies":[],"id":"3216"}];
+        vueThis.step1 = false;
+        vueThis.step3 = true;
+        vueThis.step = 3;  */
     
     },
     data: {
@@ -130,6 +336,10 @@ var strategy_app = new Vue({
                 this['step'+goTo] = true;   
             },500); 
         },
+        pdf: function(){
+            var doc = examples.spans(this.selectedPieces);
+            doc.save('checkList.pdf');
+        },
         loadStrategies: function(){
             let vueThis = this,
                 strategies;
@@ -178,16 +388,47 @@ function generatePieceHeader(doc){
     doc.line(100, 20, 100, 60) // vertical line
     doc.rect(20, 20, 10, 10) */
 
-    doc.rect(5, 20, 60, 10); //x,y,width,height
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFontType('bold');
-    doc.text('Piece', 6, 26);
-    doc.rect(65, 20, 35, 10); //x,y,width,height
-    doc.text('Practice Passage', 66, 26);
-    doc.rect(100, 20, 40, 10); //x,y,width,height
-    doc.text('Practice Strategy', 101, 26);
 
-    doc.rect(140, 20, 60, 10); //x,y,width,height
-    doc.line(140, 25, 200, 25);
+    doc.rect(10, 40, 184, 40); //x,y,width,height
+    doc.text('Piece', 12, 63);
+    doc.rect(194, 40, 85, 40); //x,y,width,height
+    doc.text('Practice Passage', 196, 63);
+    doc.rect(279, 40, 90, 40); //x,y,width,height
+    doc.text('Practice Strategy', 281, 63);
+
+    doc.rect(369, 40, 216, 40); //x,y,width,height
+    doc.line(369, 60, 585, 60);
+
+    doc.line(369+24*1,60,369+24*1,80);
+    doc.line(369+24*2,60,369+24*2,80);
+    doc.line(369+24*3,60,369+24*3,80);
+
+    doc.line(369+24*4,60,369+24*4,80);
+    doc.line(369+24*5,60,369+24*5,80);
+    doc.line(369+24*6,60,369+24*6,80);
+
+    doc.line(369+24*7,60,369+24*7,80);
+
+    //doc.line(369+24*1,60,369+24*1,80);
+
+    doc.text('M', 369+(24*1-16), 73);
+    doc.text('T', 369+(24*2-16), 73);
+    doc.text('W', 369+(24*3-16), 73);
+    doc.text('H', 369+(24*4-16), 73);
+    doc.text('F', 369+(24*5-16), 73);
+    doc.text('Sat', 365+(24*6-16), 73);
+    doc.text('Sun', 365+(24*7-16), 73);
+    doc.text('Mastery', 369+(24*8-16), 73);
+
+
+
+    doc.setFontType('normal');
+
+    doc.text('Mark time spent / check days practiced', 387, 53);
+
+
 
 }
+
