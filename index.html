@@ -8,15 +8,53 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/form-elements.css">
+    <link rel="stylesheet" href="components/modal.css">    
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-select@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js" integrity="sha384-CchuzHs077vGtfhGYl9Qtc7Vx64rXBXdIAZIPbItbNyWIRTdG0oYAqki3Ry13Yzu" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
 </head>
 <body>
+    <script type="text/x-template" id="modal-template">
+        <transition name="modal">
+          <div class="my-modal-mask">
+            <div class="my-modal-wrapper">
+              <div class="my-modal-container">
+                <div class="my-modal-header">
+                  <slot name="header">
+                    default header
+                  </slot>
+                </div>
+                <div class="my-modal-body">
+                  <slot name="body">
+                    default body
+                  </slot>
+                </div>
+                <div class="my-modal-footer">
+                    <button class="my-modal-default-button btn btn-success" @click="$emit('close')">
+                      OK
+                    </button>
+                    <br />
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </script>
     <div class="container" id="strategy-app">
-        <h1>My Music Mastery</h1>
-        <h5 class="muted">version 0.6.0</h5>
+        <modal v-if="showModal" @close="closeModal">
+
+            <!--
+                you can use custom content here to overwrite
+                default content
+            -->
+            <h3 slot="header">{{customStrategy.title}}</h3>
+            <textarea slot="body" placeholder="add description" class="form-control" v-model="customStrategy.description"></textarea>
+
+        </modal>
+        <br />
+        <h1 class="white">My Music Mastery</h1>
+        <h5 class="black">version 0.6.4</h5>
 
         <div class="row">
             <div class="col-md-8 offset-md-2 col-sm-6 offset-sm-3 form-box">
@@ -131,7 +169,10 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="input-group">
-                                                        <v-select class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id]" :options="strategies" >
+                                                        <v-select taggable push-tags class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id]" :options="strategies" >
+                                                            <template slot="option" slot-scope="option">
+                                                                {{ option.label || handleNewEntry(option)}} <span v-if="!option.label" class="text-muted small"> - User Entry</span>
+                                                            </template>
                                                         </v-select>
                                                         <div class="input-group-append">
                                                             <button v-bind:class="{ 'btn-outline-success': selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id] }" class="btn btn-outline-secondary" type="button" v-on:click="addStrategy(piece.strategies,(piece.source === 'User Entry' ? 'U':'') + piece.id)">Add Strategy</button>
@@ -159,7 +200,10 @@
                                                 <div class="col">
                                                     <p class="card-text">{{measure.measure}} - Tempo {{measure.tempo}}</p>
                                                     <div class="input-group">
-                                                        <v-select class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id]" :options="strategies" >
+                                                        <v-select taggable push-tags class="strategy-select" v-model="selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id]" :options="strategies" >
+                                                            <template slot="option" slot-scope="option">
+                                                                {{ option.label || handleNewEntry(option)}} <span v-if="!option.label" class="text-muted small"> - User Entry</span>
+                                                            </template>
                                                         </v-select>
                                                         <div class="input-group-append">
                                                             <button v-bind:class="{ 'btn-outline-success': selectedStrategy[(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id] }" class="btn btn-outline-secondary" type="button" v-on:click="addStrategy(measure.strategies,(piece.source === 'User Entry' ? 'U':'')+piece.id+''+measure.id)">Add Strategy</button>

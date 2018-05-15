@@ -62,7 +62,7 @@ examples.spans = function (data) {
         },
         drawCell: function (cell, data) {
             if(data.column.index === 0){
-                cell.width -= 26.5;
+                cell.width = 184;
                 if(data.row.raw.source){
                     cell.text.push('');
                     cell.text.push('Source:');
@@ -86,15 +86,15 @@ examples.spans = function (data) {
 
                     data.row.raw.measures.map((measure,index)=>{
                         height = measure.strategies.length*20;
-                        if(height < 40){
-                            height = 40;
+                        if(height <= 40){
+                            height = 60;
                         }
                         doc.rect(cell.x, cell.y+trackHeight, 85, height); //x,y,width,height
                         doc.text('m. '+measure.measure, cell.x+4, cell.y+trackHeight+14);
                         doc.text('tempo '+measure.tempo, cell.x+4, cell.y+trackHeight+29);
 
                         measure.strategies.map((strategy,index)=>{
-                            doc.rect(cell.x+85, cell.y+trackHeight+(20*(index)), cell.width-58.5, 20); //x,y,width,height
+                            doc.rect(cell.x+85, cell.y+trackHeight+(20*(index)), 306, 20); //x,y,width,height
                             doc.text(strategy.label, cell.x+87, cell.y+trackHeight+(20*(index))+14);
 
                             doc.line(369,cell.y+trackHeight+(20*index),369,cell.y+trackHeight+(20*index)+20);
@@ -117,14 +117,14 @@ examples.spans = function (data) {
                                 if(data.row.raw.link){
                                     hasLink = 1;
                                     doc.setTextColor(0,0,255);
-                                    doc.text(data.row.raw.link,cell.x+4,cell.y+(20*index)+20+((noteBlocks.length+1)*12)+trackHeight);
+                                    doc.text(data.row.raw.link,cell.x+4,cell.y+(20*index)+38+((noteBlocks.length+1)*12)+trackHeight);
                                     doc.setTextColor(0,0,0);
                                 }
-
-                                doc.rect(cell.x, cell.y+(20*(index))+20, cell.width+26.5, 5+((hasLink+noteBlocks.length)*20)+trackHeight);
-                                doc.text('Notes / Comments:',cell.x+2,cell.y+(20*index)+12+trackHeight);
+                                
+                                doc.rect(cell.x, cell.y+(20*(index))+20+trackHeight, 391, 20+((hasLink+noteBlocks.length)*20));
+                                doc.text('Notes / Comments:',cell.x+2,cell.y+(20*index)+32+trackHeight);
                                 noteBlocks.map((block,indexBlock)=>{
-                                    doc.text(block,cell.x+4,cell.y+(20*index)+12+((indexBlock+1)*12)+trackHeight); 
+                                    doc.text(block,cell.x+4,cell.y+(20*index)+32+((indexBlock+1)*12)+trackHeight); 
                                 });  
                             }
                         }
@@ -133,12 +133,10 @@ examples.spans = function (data) {
                         
                     });
                         
-                    
-                    //debugger;
                 }
                 else {
                     data.row.raw.strategies.map((strategy,index)=>{
-                        doc.rect(cell.x+85, cell.y+(20*(index)), cell.width-58.5, 20); //x,y,width,height
+                        doc.rect(cell.x+85, cell.y+(20*(index)), 306, 20); //x,y,width,height
                         doc.text(strategy.label, cell.x+87, cell.y+(20*(index))+14);
 
                         doc.line(369,cell.y+(20*index),369,cell.y+(20*index)+20);
@@ -164,7 +162,7 @@ examples.spans = function (data) {
                                     doc.setTextColor(0,0,0);
                                 }
 
-                                doc.rect(cell.x, cell.y+(20*(index))+20, cell.width+26.5, 20+((hasLink+noteBlocks.length)*20));
+                                doc.rect(cell.x, cell.y+(20*(index))+20, 391, 20+((hasLink+noteBlocks.length)*20));
                                 doc.text('Notes / Comments:',cell.x+2,cell.y+(20*index)+33);
                                 noteBlocks.map((block,indexBlock)=>{
                                     doc.text(block,cell.x+4,cell.y+(20*index)+33+((indexBlock+1)*12)); 
@@ -210,6 +208,9 @@ var breakUptext = function (textLength,source) {
 };
 
 Vue.component('v-select', VueSelect.VueSelect);
+Vue.component('modal', {
+    template: '#modal-template'
+});
 
 var strategy_app = new Vue({
     el: '#strategy-app',
@@ -255,10 +256,11 @@ var strategy_app = new Vue({
         ///values/Piece!A:B,Source!A:B?key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA
         xhttp.send();
 
-/*         vueThis.selectedPieces = [{"notes":"yo there","link":"https://www.youtube.com/watch?v=NUfvht7aJPQ","name":"Bourree 2","label":"Bourree 2 39","source":"Suzuki Book 3","tempo":"200","measures":[],"strategies":[{"label":"Clap","id":"19","description":""},{"label":"Record","id":"29","description":""},{"label":"Slow Practice","id":"24","description":""}],"id":"39"},{"name":"Caprice No. 12, Comodo","label":"Caprice No. 12, Comodo 3189","source":"Rode 24 Caprices for Violin","tempo":"120","measures":[{"measure":"Lookal","tempo":"200","strategies":[{"label":"Connected Notes","id":"9","description":"All note changes take place in the middle of each bow. A given note begins in the middle of the bow, and its duration continues through the bow change until the bow returns again to the middle of the bow. All notes are given an equal rhythm and bow-distribution (one half of the bow in each direction)."}],"id":0},{"measure":"Mishko","tempo":"235","strategies":[{"label":"Roasting","id":"999","description":"You should roast bro"},{"label":"Listen","id":"20","description":""},{"label":"Record","id":"29","description":""}],"id":1},{"measure":"Seemotam","tempo":"140","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."},{"label":"Stopped Bows","id":"8","description":"Practice bow distribution within one bow stroke by stopping after each note in a continuous bow. Each note should receive the appropriate bow division as assigned within the given bow direction."}],"id":2}],"strategies":[],"id":"3189"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"570","measures":[{"measure":"Ureikol","tempo":"120","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."}],"id":0},{"measure":"Smalshok","tempo":"220","strategies":[{"label":"Metronome Drilling","id":"28","description":""},{"label":"Listen","id":"20","description":""}],"id":1},{"measure":"Lugtungal","tempo":"330","strategies":[{"label":"Rapid Rhythms","id":"5","description":"Determine a group of notes in groups of either 3, 4, 6, or 8. To begin, the first note of each group receives its own beat. The remaining notes are played in rapid succession within their own beat, distributed equally across the beat. For variation, displace the long note by one position in the group until you have cycled through all possible combinations. Ex: L SSSSSSS becomes SL SSSSSS, etc."}],"id":2}],"strategies":[],"id":"3216"}];
-        vueThis.step1 = false;
-        vueThis.step3 = true;
-        vueThis.step = 3;  */
+        //vueThis.selectedPieces = [{"notes":"yo there","link":"https://www.youtube.com/watch?v=NUfvht7aJPQ","name":"Bourree 2","label":"Bourree 2 39","source":"Suzuki Book 3","tempo":"200","measures":[],"strategies":[{"label":"Clap","id":"19","description":""},{"label":"Record","id":"29","description":""},{"label":"Slow Practice","id":"24","description":""},{"label":"Petersen","id":"39","description":"here bro","custom":true}],"id":"39"},{"name":"Caprice No. 12, Comodo","label":"Caprice No. 12, Comodo 3189","source":"Rode 24 Caprices for Violin","tempo":"120","measures":[{"measure":"Lookal","tempo":"200","strategies":[{"label":"Connected Notes","id":"9","description":"All note changes take place in the middle of each bow. A given note begins in the middle of the bow, and its duration continues through the bow change until the bow returns again to the middle of the bow. All notes are given an equal rhythm and bow-distribution (one half of the bow in each direction)."},{"label":"Milshko","id":"31890","description":"Use the milshko and stuff like that, what is it about other stories and you know but the thing is that I don't know so much as I thought I did.","custom":true}],"id":0},{"measure":"Mishko","tempo":"235","strategies":[{"label":"Roasting","id":"999","description":"You should roast bro"},{"label":"Listen","id":"20","description":""},{"label":"Record","id":"29","description":""}],"id":1},{"measure":"Seemotam","tempo":"140","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."},{"label":"Stopped Bows","id":"8","description":"Practice bow distribution within one bow stroke by stopping after each note in a continuous bow. Each note should receive the appropriate bow division as assigned within the given bow direction."}],"id":2}],"strategies":[],"id":"3189"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"570","measures":[{"measure":"Ureikol","tempo":"120","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."}],"id":0},{"measure":"Smalshok","tempo":"220","strategies":[{"label":"Metronome Drilling","id":"28","description":""},{"label":"Listen","id":"20","description":""}],"id":1},{"measure":"Lugtungal","tempo":"330","strategies":[{"label":"Rapid Rhythms","id":"5","description":"Determine a group of notes in groups of either 3, 4, 6, or 8. To begin, the first note of each group receives its own beat. The remaining notes are played in rapid succession within their own beat, distributed equally across the beat. For variation, displace the long note by one position in the group until you have cycled through all possible combinations. Ex: L SSSSSSS becomes SL SSSSSS, etc."}],"id":2}],"strategies":[],"id":"3216"}];
+        //vueThis.selectedPieces = [{"notes":"yo there","link":"https://www.youtube.com/watch?v=NUfvht7aJPQ","name":"Bourree 2","label":"Bourree 2 39","source":"Suzuki Book 3","tempo":"200","measures":[],"strategies":[{"label":"Clap","id":"19","description":""},{"label":"Record","id":"29","description":""},{"label":"Slow Practice","id":"24","description":""},{"label":"Petersen","id":"39","description":"here bro","custom":true}],"id":"39"},{"name":"Caprice No. 12, Comodo","label":"Caprice No. 12, Comodo 3189","source":"Rode 24 Caprices for Violin","tempo":"120","measures":[{"measure":"Lookal","tempo":"200","strategies":[{"label":"Connected Notes","id":"9","description":"All note changes take place in the middle of each bow. A given note begins in the middle of the bow, and its duration continues through the bow change until the bow returns again to the middle of the bow. All notes are given an equal rhythm and bow-distribution (one half of the bow in each direction)."},{"label":"Milshko","id":"31890","description":"Use the milshko and stuff like that, what is it about other stories and you know but the thing is that I don't know so much as I thought I did.","custom":true}],"id":0},{"measure":"Mishko","tempo":"235","strategies":[{"label":"Roasting","id":"999","description":"You should roast bro"},{"label":"Listen","id":"20","description":""},{"label":"Record","id":"29","description":""}],"id":1},{"measure":"Seemotam","tempo":"140","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."},{"label":"Stopped Bows","id":"8","description":"Practice bow distribution within one bow stroke by stopping after each note in a continuous bow. Each note should receive the appropriate bow division as assigned within the given bow direction."}],"id":2},{"measure":"Alairiton","tempo":"280","strategies":[{"label":"Stopped Bows","id":"8","description":"Practice bow distribution within one bow stroke by stopping after each note in a continuous bow. Each note should receive the appropriate bow division as assigned within the given bow direction."},{"label":"Finger Tapping","id":"12","description":"Practice a finger pattern or passage of music by tapping your fingers to their place without the use of the bow. You should hear a clear tone produced by the tapping of each finger as it is placed, as well as some sound as the finger is lifted away from the string. Each finger should be placed correctly and in tune, with careful attention to correctly shape each finger as it comes in contact with the instrument."},{"label":"Subito Dynamics","id":"22","description":"Perfrom a passage of music with the corresponding dynamic indicated. Stop immediately before the next dynamic marking, maintaining contact with the instrument (bow and left hand). Begin the new passage within the correct rhythmic group and beat placement in the new dynamic."},{"label":"The Medicine","id":"1","description":"1) Say all Finger Names, 1 note per beat\n2) Say all Note Names, 1 note per beat\n3) Repeat steps 1 and 2, with correct rhythm instead of 1 note per beat\n4) Sing all Finger Names, 1 note per beat\n5) Sing all Note Names, 1 note per beat\n6) Repeat steps 4 and 5 with correct rhythm instead of 1 note per beat"},{"label":"Transcribe","id":"30","description":""},{"label":"Rapid Rhythms","id":"5","description":"Determine a group of notes in groups of either 3, 4, 6, or 8. To begin, the first note of each group receives its own beat. The remaining notes are played in rapid succession within their own beat, distributed equally across the beat. For variation, displace the long note by one position in the group until you have cycled through all possible combinations. Ex: L SSSSSSS becomes SL SSSSSS, etc."},{"label":"Half-tempo, Full-tempo","id":"25","description":""},{"label":"Metronome Drilling","id":"28","description":""},{"label":"New Finger Shifting","id":"11","description":"Prior to performing a shift, identify the  following: \n1) The new finger used after the shift occurs - this finger is the 'new finger'.\n2) The old position the left hand departs from prior to performing the given shift \n3) The note the new finger would be placed on in the old position - this is your connection note\n\nNext, add the connection note to the passage:\na) The connection-note and the new-finger note each receive their own beat and their own bow\nb) The connection-note and the new-finger note each receive their own beat but share the same bow (evenly split)\nc) The connection-note and the new-finger note share a beat (even rhythmic divisions) and bow (evenly split)\nd) The connection-note and the new-finger note share a beat with the connection note performed as a grace note with as little bow possible"},{"label":"Note Doubling (Rhythmic)","id":"3","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes. Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). Regardless of the printed rhythm, notes designated with a 'D' are performed as a pair of eighth notes while those designated with an 'S' are performed as quarter note rhythms and are practiced with a metronome. \r\n\r\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."}],"id":3},{"measure":"Sniggle","tempo":"Simgee","strategies":[{"label":"Chord Layers","id":"16","description":"Practice a chord passage with the following steps:\n1) Perform the bottom notes alone\n2) Perform the top notes alone\n3) Perform the bottom notes alone while placing the corresponding fingers down for the top notes\n4) Perform the top notes along while placing the corresponding fingers down for the bottom notes\n5) Perform the top and bottom notes simultaneously"}],"id":4},{"measure":"Gnarly Cat","tempo":"30293","strategies":[{"label":"Add a note","id":"21","description":""}],"id":5},{"measure":"Very fast man from the ancient world.","tempo":"2342","strategies":[{"label":"Backwards","id":"13","description":"Perform a measure or passage of music in reverse order:\n1) Without rhythm or bowings\n2) With rhythm, no bowings\n3) With bowings, no rhythm\n4) With bowings and rhythm"}],"id":6},{"measure":"60","tempo":"2023","strategies":[{"label":"Chord Layers","id":"16","description":"Practice a chord passage with the following steps:\n1) Perform the bottom notes alone\n2) Perform the top notes alone\n3) Perform the bottom notes alone while placing the corresponding fingers down for the top notes\n4) Perform the top notes along while placing the corresponding fingers down for the bottom notes\n5) Perform the top and bottom notes simultaneously"}],"id":7}],"strategies":[],"id":"3189"},{"name":"Caprice No. 15, Presto","label":"Caprice No. 15, Presto 3216","source":"Paganini 24 Capries for Violin","tempo":"570","measures":[{"measure":"Ureikol","tempo":"120","strategies":[{"label":"Note Doubling","id":"2","description":"Perform the given patterns (DDSS, SSDD, DSSD, SDDS) on a passage in groups of four consecutive notes (no more than two groups at a time). Play each note assigned a 'D' twice, and each note assigned an 'S' once (D = Double, S = Single). All notes, regardless of their printed rhythm, are given equal rhyhtmic values and are practiced with a metronome. \n\nOnce a pattern is learned and you are able to correctly perform the pattern on the selected notes, reinforce the passage following the general rule: once correctly while reading your music, twice correctly without reading your music."},{"label":"Clap","id":"19","description":""}],"id":0},{"measure":"Smalshok","tempo":"220","strategies":[{"label":"Metronome Drilling","id":"28","description":""},{"label":"Listen","id":"20","description":""}],"id":1},{"measure":"Lugtungal","tempo":"330","strategies":[{"label":"Rapid Rhythms","id":"5","description":"Determine a group of notes in groups of either 3, 4, 6, or 8. To begin, the first note of each group receives its own beat. The remaining notes are played in rapid succession within their own beat, distributed equally across the beat. For variation, displace the long note by one position in the group until you have cycled through all possible combinations. Ex: L SSSSSSS becomes SL SSSSSS, etc."}],"id":2}],"strategies":[],"id":"3216","notes":"Numachoochangatori you know what I am talking about?  Stuff like that?"}];
+        //vueThis.step1 = false;
+        //vueThis.step4 = true;
+        //vueThis.step = 4;
     
     },
     data: {
@@ -270,7 +272,12 @@ var strategy_app = new Vue({
         selectedStrategy:{},
         selectedStrategyMethod:{},
         sourceMap:{
-
+        },
+        customStrategy : {
+            title:'',
+            id:'',
+            description:'',
+            strategiesRef:[]
         },
         selectedPieces:[],
         step1:true,
@@ -281,6 +288,7 @@ var strategy_app = new Vue({
         step4:false,
         step:1,
         userEntries:0,
+        showModal: false,
         handleNewEntry: function(option){
             return Object.keys(option).reduce((name,key)=>{
                 name += option[key];
@@ -314,11 +322,20 @@ var strategy_app = new Vue({
         addStrategy: function(strategies,id){
 
             console.log(this.selectedStrategy[id]);
-            //debugger;
+            
 
             if(this.selectedStrategy[id]){
-                strategies.push(this.selectedStrategy[id]);
-                delete this.selectedStrategy[id];
+
+                if(!this.selectedStrategy[id].id){
+                    this.customStrategy.id = id;
+                    this.customStrategy.title = this.selectedStrategy[id];
+                    this.customStrategy.strategiesRef = strategies;
+                    this.showModal = true;
+                }
+                else {
+                    strategies.push(this.selectedStrategy[id]);
+                    delete this.selectedStrategy[id];
+                }
             }
         },
         go: function(goTo){
@@ -364,6 +381,22 @@ var strategy_app = new Vue({
             };            
             xhttp.open("GET", "https://sheets.googleapis.com/v4/spreadsheets/1SOvyvvAGUuniEf2EXT0jSk4v0cDdq_mxIFRmH1Tvilk/values:batchGet?ranges=PS!A:C&key=AIzaSyA251gYOA-3nYb0uOHRvdeF5f-zX2PhmpA", true);
             xhttp.send();
+        }
+    },
+    methods: {
+        closeModal: function(){
+            if(this.customStrategy.description){
+                this.customStrategy.strategiesRef.push({
+                    label:this.customStrategy.title,
+                    id:this.customStrategy.id,
+                    description:this.customStrategy.description,
+                    custom:true
+                });
+                delete this.selectedStrategy[this.customStrategy.id];
+                delete this.customStrategy.strategiesRef;
+                this.customStrategy.description = '';
+            }
+            this.showModal = false;
         }
     }
 });
@@ -421,7 +454,6 @@ function generatePieceHeader(doc){
     doc.text('Sat', 365+(24*6-16), 73);
     doc.text('Sun', 365+(24*7-16), 73);
     doc.text('Mastery', 369+(24*8-16), 73);
-
 
 
     doc.setFontType('normal');
