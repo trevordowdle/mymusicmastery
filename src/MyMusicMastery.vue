@@ -1,6 +1,6 @@
 <template>
   <div id="mymusicmastery">
-    <Header :login="login" :entryUID="entryUID" :newEntry="newEntry" :profile="profile" :home="home" @update="updateData" />
+    <Header v-if="!login" :login="login" :entryUID="entryUID" :newEntry="newEntry" :profile="profile" :home="home" @update="updateData" />
     <div class="container">
 <!--     <img src="./assets/logo.png"> -->
 <!--     <HelloWorld msg="Welcome to Your Vue.js App"/> -->
