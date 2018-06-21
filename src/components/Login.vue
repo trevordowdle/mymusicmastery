@@ -1,5 +1,7 @@
 <template>
     <div class="login">
+        <br />
+        <br />
         <transition name="fade">
             <fieldset>
                 <p>Login</p>
@@ -47,6 +49,7 @@ export default {
         });
 
         vueThis.$emit('update',{ref:'login',val:false});
+        vueThis.$emit('update',{ref:'home',val:true});
         vueThis.$emit('update',{ref:'step1',val:true});
         vueThis.$emit('update',{ref:'database',val:database});
 
@@ -63,6 +66,7 @@ export default {
         ui.start('#firebaseui-auth-container', uiConfig);
         vueThis.$emit('update',{ref:'login',val:true});
       }
+      vueThis.$emit('update',{ref:'loaded',val:true});
     }, function(error) {
       console.log(error);
     });

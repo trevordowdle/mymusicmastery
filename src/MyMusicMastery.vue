@@ -1,6 +1,6 @@
 <template>
   <div id="mymusicmastery">
-    <Header v-if="!login" :login="login" :entryUID="entryUID" :newEntry="newEntry" :profile="profile" :home="home" @update="updateData" />
+    <Header v-if="!login && loaded" :login="login" :entryUID="entryUID" :newEntry="newEntry" :profile="profile" :home="home" @update="updateData" />
     <div class="container">
 <!--     <img src="./assets/logo.png"> -->
 <!--     <HelloWorld msg="Welcome to Your Vue.js App"/> -->
@@ -39,11 +39,12 @@ export default {
       login:false,
       profile:false,
       newEntry:false,
-      home:true,
+      home:false,
       user:{},
       database:null,
       existingEntry:null,
-      entryUID:''
+      entryUID:'',
+      loaded:false
     }
   },
   methods: {
